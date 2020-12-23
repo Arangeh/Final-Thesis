@@ -1,3 +1,0 @@
-rm /home/alireza-a/monitor.log
-ryu-manager /home/alireza-a/Desktop/ryu/ryu/app/simple_monitor_13.py
-
