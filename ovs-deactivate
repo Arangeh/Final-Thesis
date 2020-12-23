@@ -1,0 +1,7 @@
+ifconfig mybridge 0
+ovs-vsctl del-port mybridge vport1 -- del-port mybridge vport2
+ovs-vsctl del-port mybridge enp0s25
+ip link delete vport1
+ip link delete vport2
+ifconfig enp0s25 192.168.1.7
+ping google.com

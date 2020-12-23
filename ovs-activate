@@ -1,0 +1,14 @@
+ovs-vsctl add-port mybridge enp0s25
+ifconfig enp0s25 0
+sleep 1
+dhclient mybridge
+sleep 1
+ping google.com
+ip tuntap add mode tap vport1
+ip tuntap add mode tap vport2
+sleep 1
+ifconfig vport1 up
+ifconfig vport2 up
+ovs-vsctl add-port mybridge vport1
+ovs-vsctl add-port mybridge vport2
+
