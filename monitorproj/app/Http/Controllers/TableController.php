@@ -32,7 +32,8 @@ class TableController extends Controller
 		$portstat->tx_error = $req->tx_error;
 		$result = $portstat->save();
 		if ($result) {
-			return ["Result" => "Data has been saved"];
+
+			return ["Result" => "Data has been saved","tx_bytes" => $req];
 		}
 		return ["Result" => "Operation failed"];
 	}

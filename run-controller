@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+ryu-manager --verbose /home/alireza/ryu/ryu/app/simple_monitor_13.py 

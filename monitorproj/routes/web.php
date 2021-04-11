@@ -13,7 +13,14 @@ use App\Http\Controllers\TableController;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
+/*
+Route::get('/', function (){
+	return view('welcome');
+});
+*/
+Route::get('/', function(){
+	return view('layouts.admin');
+});
 Route::post('/portstats', [TableController::class, 'addPort'])->name('port.addPort');
 Route::get('/portstats', [TableController::class, 'getAllPortStats'])->name('port.getAllPortStats');
 Route::get('/portstat/delete-all', [TableController::class, 'deleteAllPortStats'])->name('port.deleteall');

@@ -41,11 +41,12 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 		super(SimpleMonitor13, self).__init__(*args, **kwargs)
 		
 		self.datapaths = {}
+		'''
 		logging.basicConfig(filename='/home/alireza-a/monitor.log',encoding='utf-8')
 		fh = logging.FileHandler('/home/alireza-a/monitor.log')
 		fh.setLevel(logging.DEBUG)
 		self.logger.addHandler(fh)
-		
+		'''
 		self.monitor_thread = hub.spawn(self._monitor)
 
 	@set_ev_cls(ofp_event.EventOFPStateChange,
