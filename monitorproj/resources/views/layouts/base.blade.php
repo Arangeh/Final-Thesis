@@ -332,7 +332,7 @@
 				}, 5000); //Delay here = 5 seconds
 			});
 	</script> --}}
-	@@livewireScripts
+	@livewireScripts
 </body>
 
 </html>
