@@ -34,5 +34,7 @@
 "[blade]": {
   "editor.autoClosingBrackets": "always"
 },
+"diffEditor.wordWrap": "on",
+"editor.wordWrap": "on",
 
 }

@@ -23,7 +23,7 @@
   <link rel="icon" type="image/png" href="../assets/img/favicon.png">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
   <title>
-    Livewire Project
+		@yield('title')
   </title>
   <meta content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no' name='viewport' />
   <!--     Fonts and icons     -->
@@ -34,7 +34,7 @@
   <link href="../assets/css/now-ui-dashboard.css?v=1.5.0" rel="stylesheet" />
   <!-- CSS Just for demo purpose, don't include it in your project -->
   <link href="../assets/demo/demo.css" rel="stylesheet" />
-	@@livewireStyles
+	@livewireStyles
 </head>
 
 <body class="">
@@ -54,6 +54,12 @@
       <div class="sidebar-wrapper" id="sidebar-wrapper">
         <ul class="nav">
           <li>
+						<a href="./tables.html">
+							<i class="now-ui-icons shopping_shop"></i>
+							<p>Main Page</p>
+						</a>
+					</li>
+					<li>
             <a href="./dashboard.html">
               <i class="now-ui-icons files_paper"></i>
               <p>Capabilities</p>
@@ -67,7 +73,7 @@
           </li>
           <li>
             <a href="./icons.html">
-              <i class="now-ui-icons design_bullet-list-67"></i>
+              <i class="now-ui-icons business_chart-bar-32"></i>
               <p>Statistics</p>
             </a>
           </li>
@@ -79,36 +85,36 @@
           </li>
           
           <li>
-            <a href="./user.html">
+            <a href="/portstats">
               <i class="now-ui-icons design_bullet-list-67"></i>
               <p>Port Stats</p>
             </a>
           </li>
           <li class="active ">
-            <a href="./tables.html">
+            <a href="/flowstats">
               <i class="now-ui-icons design_bullet-list-67"></i>
               <p>Flow Stats</p>
             </a>
           </li>
-          <li>
-						<li>
-            <a href="./tables.html">
-              <i class="now-ui-icons tech_laptop"></i>
-              <p>Connected Devices</p>
-            </a>
-          </li>
-          {{-- <li>
+					<li>
+						<a href="./tables.html">
+							<i class="now-ui-icons tech_laptop"></i>
+							<p>Connected Devices</p>
+						</a>
+					</li>
+					
+				{{-- <li>
             <a href="./typography.html">
               <i class="now-ui-icons text_caps-small"></i>
               <p>Typography</p>
             </a>
           </li>
-          <li class="active-pro">
+          < class="active-pro">
             <a href="./upgrade.html">
               <i class="now-ui-icons arrows-1_cloud-download-93"></i>
               <p>Upgrade to PRO</p>
             </a> --}}
-          </li>
+          
         </ul>
       </div>
     </div>
@@ -132,7 +138,7 @@
             <span class="navbar-toggler-bar navbar-kebab"></span>
           </button>
           <div class="collapse navbar-collapse justify-content-end" id="navigation">
-            <form>
+            {{-- <form>
               <div class="input-group no-border">
                 <input type="text" value="" class="form-control" placeholder="Search...">
                 <div class="input-group-append">
@@ -141,37 +147,125 @@
                   </div>
                 </div>
               </div>
-            </form>
+            </form> --}}
             <ul class="navbar-nav">
-              <li class="nav-item">
+							@if(Route::has('login'))
+
+								@auth
+									@if(Auth::user()->utype === 'ADM')
+										{{-- <li class="nav-item">
+										<a class="nav-link" title="My Account" href="#">
+											My Account ({{ Auth::user()->name }})
+											
+										</a>
+										</li> --}}
+										<li class="nav-item dropdown">
+											<a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+												<i class="now-ui-icons 
+												{{-- location_world --}}
+												users_single-02
+												">
+
+												</i>
+												<p>
+													<span class="d-lg-none d-md-block">Some Actions for Admin Dashboard</span>
+												</p>
+											</a>
+											<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+												<a class="dropdown-item" href="#">
+													My Account ({{ Auth::user()->name}})</a>
+												<a title = "Dashboard" class="dropdown-item" href="{{ route('admin.dashboard') }}">
+													{{-- Another action --}}
+													Dashboard
+												</a>
+												<a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault();
+												document.getElementById('logout-form-admin').submit(); ">Logout</a>
+												{{-- <a class="dropdown-item" href="#">Something else here</a> --}}
+											</div>
+										</li>
+										<form id="logout-form-admin" method="POST" action="{{ route('logout') }}">
+											@csrf
+											
+										</form>
+									@else
+										{{-- <li class="nav-item">
+										<a class="nav-link" href="#">
+											My Account ({{ Auth::user()->name }})
+											
+										</a>
+										</li> --}}
+										<li class="nav-item dropdown">
+											<a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+												<i class="now-ui-icons 
+												{{-- location_world --}}
+												users_single-02
+												">
+
+												</i>
+												<p>
+													<span class="d-lg-none d-md-block">Some Actions for Admin Dashboard</span>
+												</p>
+											</a>
+											<div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+												<a class="dropdown-item" href="#">
+													My Account ({{ Auth::user()->utype}})</a>
+												<a title = "dashboard" class="dropdown-item" href="{{ route('admin.dashboard') }}">
+													{{-- Another action --}}
+													Dashboard
+												</a>
+												
+												<a class="dropdown-item" href="{{ route('logout') }}" onclick="event.preventDefault();
+												document.getElementById('logout-form-user').submit(); ">Logout</a>
+												
+												<form id="logout-form-user" method="POST" action="{{ route('logout') }}">
+													@csrf
+													
+												</form>
+												{{-- <a class="dropdown-item" href="#">Something else here</a> --}}
+											</div>
+										</li>
+										
+									@endif
+
+								@else	
+									<li class="nav-item">
+										<a class="nav-link" href="{{ route('login') }}">
+											Login
+											{{-- <i class="now-ui-icons media-2_sound-wave"></i> --}}
+											{{-- <p>
+												<span class="d-lg-none d-md-block">Login</span>
+											</p> --}}
+										</a>
+									</li>
+									<li class="nav-item">
+										<a class="nav-link" href="{{ route('register') }}">
+											Register
+											{{-- <i class="now-ui-icons media-2_sound-wave"></i> --}}
+											{{-- <p>
+												<span class="d-lg-none d-md-block">Register</span>
+											</p> --}}
+										</a>
+									</li>
+								@endif
+
+							@endif
+              {{-- <li class="nav-item">
                 <a class="nav-link" href="#pablo">
                   <i class="now-ui-icons media-2_sound-wave"></i>
                   <p>
                     <span class="d-lg-none d-md-block">Stats</span>
                   </p>
                 </a>
-              </li>
-              <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <i class="now-ui-icons location_world"></i>
-                  <p>
-                    <span class="d-lg-none d-md-block">Some Actions</span>
-                  </p>
-                </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                  <a class="dropdown-item" href="#">Action</a>
-                  <a class="dropdown-item" href="#">Another action</a>
-                  <a class="dropdown-item" href="#">Something else here</a>
-                </div>
-              </li>
-              <li class="nav-item">
+              </li> --}}
+              
+              {{-- <li class="nav-item">
                 <a class="nav-link" href="#pablo">
                   <i class="now-ui-icons users_single-02"></i>
                   <p>
                     <span class="d-lg-none d-md-block">Account</span>
                   </p>
                 </a>
-              </li>
+              </li> --}}
             </ul>
           </div>
         </div>
@@ -179,9 +273,12 @@
       <!-- End Navbar -->
 			
       <div class="panel-header panel-header-sm">
-      </div>
+			
+			</div>
       <div class="content">
 				{{-- {{ $slot }} --}}
+				@yield('content')
+				
       </div>
       <footer class="footer">
         <div class=" container-fluid ">
@@ -227,6 +324,14 @@
   <!-- Control Center for Now Ui Dashboard: parallax effects, scripts for the example pages etc -->
   <script src="../assets/js/now-ui-dashboard.min.js?v=1.5.0" type="text/javascript"></script><!-- Now Ui Dashboard DEMO methods, don't include it in your project! -->
   <script src="../assets/demo/demo.js"></script>
+	{{-- <script>
+		$(document).ready(
+			function() {
+				setInterval(function() {
+					location.reload();
+				}, 5000); //Delay here = 5 seconds
+			});
+	</script> --}}
 	@@livewireScripts
 </body>
 
