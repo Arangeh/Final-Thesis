@@ -48,6 +48,8 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 		self.logger.addHandler(fh)
 		'''
 		self.monitor_thread = hub.spawn(self._monitor)
+		self.statistics_thread = hub.spawn(self._statistics)
+		
 
 	@set_ev_cls(ofp_event.EventOFPStateChange,
 				[MAIN_DISPATCHER, DEAD_DISPATCHER])
@@ -66,6 +68,11 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 		while True:
 			for dp in self.datapaths.values():
 				self._request_stats(dp)
+			hub.sleep(10)
+
+	def _statistics(self):
+		while True:
+			
 			hub.sleep(10)
 
 	def _request_stats(self, datapath):
@@ -95,7 +102,9 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 				"bytes": str(stat.byte_count)
 			}
 			x = requests.post(self.url_flow, data=monitor_dict)
-			self.logger.info(x.text)
+			self.logger.info("REQUEST")
+			# self.logger.info(monitor_dict)
+			# self.logger.info(x.text)
 			self.logger.info('%s', monitor_dict)
 			self.logger.info('%s',json.dumps(monitor_dict))
 	
@@ -105,15 +114,17 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 		body = ev.msg.body
 		for stat in sorted(body, key=attrgetter('port_no')):
 			# Port Stats in JSON
-			monitor_dict={"datapath" : ev.msg.datapath.id,
+			monitor_dict={"datapath" : str(ev.msg.datapath.id),
 			"port" : str(stat.port_no),
 			"rx_pkts": str(stat.rx_packets),
 			"rx_bytes": str(stat.rx_bytes),
 			"rx_error": str(stat.rx_errors),			
 			"tx_pkts": str(stat.tx_packets), 
 			"tx_bytes": str(stat.tx_bytes),
-			"tx_error": str(stat.tx_errors)
+			"tx_error": str(stat.tx_errors),
+			"rx_error": str(stat.rx_errors)
 			}
 			x = requests.post(self.url_port, data=monitor_dict)
-			self.logger.info(x.text)
+			# self.logger.info(x.text)
+			self.logger.info("REQUEST")
 			self.logger.info('%s', monitor_dict)				 

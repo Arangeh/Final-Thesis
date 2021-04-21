@@ -30,6 +30,7 @@ class TableController extends Controller
 		$portstat->tx_pkts = $req->tx_pkts;
 		$portstat->tx_bytes = $req->tx_bytes;
 		$portstat->tx_error = $req->tx_error;
+		$portstat->rx_error = $req->rx_error;
 		$result = $portstat->save();
 		if ($result) {
 

@@ -60,7 +60,7 @@
 						</a>
 					</li>
 					<li>
-            <a href="./dashboard.html">
+            <a href="/capabilities">
               <i class="now-ui-icons files_paper"></i>
               <p>Capabilities</p>
             </a>
@@ -72,9 +72,15 @@
             </a>
           </li>
           <li>
-            <a href="./icons.html">
+            <a href="/port-statistics">
               <i class="now-ui-icons business_chart-bar-32"></i>
-              <p>Statistics</p>
+              <p>Port Statistical Information</p>
+            </a>
+          </li>
+					<li>
+            <a href="/flow-statistics">
+              <i class="now-ui-icons business_chart-bar-32"></i>
+              <p>Flow Statistical Information</p>
             </a>
           </li>
           <li>

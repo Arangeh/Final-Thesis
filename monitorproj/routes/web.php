@@ -30,6 +30,13 @@ Route::get('/',function(){
 })
 // ->middleware('authadmin')
 ;
+Route::get('/port-statistics', function(){
+	return view('port-statistics');
+});
+
+Route::get('/flow-statistics', function(){
+	return view('flow-statistics');
+});
 
 // /*
 Route::middleware(['auth:sanctum', 'verified'])->get('/', function () {
@@ -61,7 +68,9 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 	})->name('admin.dashboard');		
 });
 */
-
+Route::get('/capabilities', function(){
+	return view('capabilities');
+})->name('admin.capabilities')->middleware('authadmin');
 Route::post('/portstats', [TableController::class, 'addPort'])->name('port.addPort');
 Route::get('/portstats', [TableController::class, 'getAllPortStats'])->name('port.getAllPortStats')
 ->middleware('authadmin')
