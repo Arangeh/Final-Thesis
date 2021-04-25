@@ -4,7 +4,7 @@
 			<div class="col-md-6">	
 				<b>Caveat:</b> Each time the page loads, you can only see the statistical information for only one branch of cascading dropdown menus. If you have altered some dropdown menu whereas you want to see statistical information for another branch, then you should click on the "Refresh" button first.  	
 			</div>
-			<div class="col-md-6"><span class="pull-right"><a href="/flow_statistics" class="btn btn-danger">Refresh</a></span></div>
+			<div class="col-md-6"><span class="pull-right"><a href="/flow-statistics" class="btn btn-danger">Refresh</a></span></div>
 			
 		</div>
   <form action="" method="POST" enctype="multipart/form-data" form-horizontal>

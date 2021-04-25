@@ -36,5 +36,6 @@
 },
 "diffEditor.wordWrap": "on",
 "editor.wordWrap": "on",
+"editor.comments.insertSpace": false,
 
 }

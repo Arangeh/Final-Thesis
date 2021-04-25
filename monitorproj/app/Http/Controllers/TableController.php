@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\FlowStat;
 use Illuminate\Support\Facades\DB;
 use App\Models\PortStat;
+use App\Models\Event;
+use App\Models\FlowStat;
+use App\Models\SwitchDescription;
+
 
 class TableController extends Controller
 {
@@ -62,5 +65,62 @@ class TableController extends Controller
 	{
 		$flowstats = DB::table('flowstats')->paginate(12);
 		return view('flowstats', compact('flowstats'));
+	}
+
+	public function addEvent(Request $req)
+	{
+		$event = new Event;
+		$event->datapath = $req->datapath;
+		$event->timestamp = $req->timestamp;
+		$event->type = $req->type;
+		$event->reason = $req -> reason;
+		if($req->type === 'port')
+		{
+			//Some additional columns need to be filled
+			$event->hw_addr = $req->hw_addr;  
+			$event->name = $req->name;
+			$event->state = $req->state;
+			$event->configstat = $req->configstat;
+			$event->curr_speed = $req->curr_speed;
+			$event->reason = $req->reason;
+
+		}
+		else
+		{
+			//Its type is datapath and we don't need any extra columns to be filled
+		}
+		
+		$result = $event->save();
+		if ($result) {
+			return ["Result" => "Data has been saved"];
+		}
+		return ["Result" => "Operation failed"];
+	}
+	public function deleteAllEvents()
+	{
+		DB::table('events')->delete();
+		return redirect('/events');
+	}
+	public function getAllEvents(Request $req)
+	{
+		$events = DB::table('events')->paginate(12);
+		return view('events', compact('events'));
+	}
+		
+	public function addSwitchDescription(Request $req)
+	{
+		//$sw_desc_record = new SwitchDescription;
+		$sw_desc_record = SwitchDescription::firstOrNew(['datapath' => ($req->datapath)]);
+		$sw_desc_record->timestamp = $req->timestamp;
+		$sw_desc_record->mfr_desc = $req->mfr_desc;
+		$sw_desc_record->hw_desc = $req->hw_desc;
+		$sw_desc_record->sw_desc = $req->sw_desc;
+		$sw_desc_record->serial_num = $req->serial_num;
+		$sw_desc_record->dp_desc = $req->dp_desc;
+		$result = $sw_desc_record->save();
+		if ($result) {
+			return ["Result" => "Data has been saved"];
+		}
+		return ["Result" => "Operation failed"];
 	}
 }

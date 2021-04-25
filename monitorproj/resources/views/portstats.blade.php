@@ -22,6 +22,7 @@
 									<th>Tx-Packets</th>
 									<th>Tx-Bytes</th>
 									<th>Tx-Error</th>
+									<th>Rx-Error</th>
 								</tr>
 							</thead>
 							<tbody>
@@ -34,6 +35,7 @@
 									<td>{{$portstat->tx_pkts}}</td>
 									<td>{{$portstat->tx_bytes}}</td>
 									<td>{{$portstat->tx_error}}</td>
+									<td>{{!! nl2br($portstat->rx_error) !!}}</td>
 								</tr>
 								@endforeach
 							</tbody>
@@ -46,6 +48,10 @@
 								display: none
 							}
 						</style>
+						{{--@foreach ($portstats as $portstat)
+							{{ $portstat->rx_error }}
+							<br/>
+						@endforeach--}}
 					</div>
 
 		</div>

@@ -1,0 +1,173 @@
+#self.test_thread = hub.spawn(self._test)
+
+def _test(self):
+		while True:
+			#Do anything for test
+			#l=ofproto_v1_3_parser.OFPPC_PORT_DOWN
+			try:
+				dpid = self.datapaths.keys()
+				print('felan salam')
+				l = list(dpid)
+				try:
+					random_dp = self.datapaths[l[0]]
+				except:
+					print('NOTHING')	
+			except: 
+				print('felan khodahafez')
+				print(datapaths.keys())
+			#ofp = dp.ofproto
+			try:
+				ofp = random_dp.ofproto
+				print('OFPPR_ADD=' + str(ofp.OFPPR_ADD))
+				print('OFFPR_DELETE=' + str(ofp.OFPPR_DELETE))
+				print('OFPPR_MODIFY' + str(ofp.OFPPR_MODIFY))
+				print('OFPPC_PORT_DOWN=' + str(ofp.OFPPC_PORT_DOWN))
+				print('OFPPC_NO_RECV=' + str(ofp.OFPPC_NO_RECV))
+				print('OFPPC_NO_FWD=' + str(ofp.OFPPC_NO_FWD))
+				print('OFPPC_PORT_DOWN=' + str(ofp.OFPPC_NO_PACKET_IN))
+				print('bitwise and between 2 and 3 = ' + str(2&3))
+			except:
+				print('NOTHING SO SPECIAL')
+			hub.sleep(3)
+http://localhost:8080/stats/switches
+[
+    148224667143746,
+    264840332435788
+]
+
+http://localhost:8080/stats/desc/264840332435788
+{
+    "264840332435788": {
+        "mfr_desc": "Nicira, Inc.",
+        "hw_desc": "Open vSwitch",
+        "sw_desc": "2.13.1",
+        "serial_num": "None",
+        "dp_desc": "None"
+    }
+}
+
+http://localhost:8080/stats/portdesc/264840332435788
+			
+			
+			{
+    "264840332435788": [
+        {
+            "config": 0,
+            "hw_addr": "a2:e6:98:4d:94:c6",
+            "length": 72,
+            "name": "vport1",
+            "port_no": 8,
+            "properties": [
+                {
+                    "advertised": 0,
+                    "curr": 2050,
+                    "curr_speed": 10000,
+                    "length": 32,
+                    "max_speed": 0,
+                    "peer": 0,
+                    "supported": 0,
+                    "type": "ETHERNET"
+                }
+            ],
+            "state": 1
+        },
+        {
+            "config": 0,
+            "hw_addr": "f0:de:f1:ef:e1:4c",
+            "length": 72,
+            "name": "enp0s25",
+            "port_no": 7,
+            "properties": [
+                {
+                    "advertised": 10287,
+                    "curr": 10248,
+                    "curr_speed": 100000,
+                    "length": 32,
+                    "max_speed": 1000000,
+                    "peer": 0,
+                    "supported": 10287,
+                    "type": "ETHERNET"
+                }
+            ],
+            "state": 4
+        },
+        {
+            "config": 0,
+            "hw_addr": "f0:de:f1:ef:e1:4c",
+            "length": 72,
+            "name": "mybridge",
+            "port_no": "LOCAL",
+            "properties": [
+                {
+                    "advertised": 0,
+                    "curr": 0,
+                    "curr_speed": 0,
+                    "length": 32,
+                    "max_speed": 0,
+                    "peer": 0,
+                    "supported": 0,
+                    "type": "ETHERNET"
+                }
+            ],
+            "state": 4
+        },
+        {
+            "config": 0,
+            "hw_addr": "b6:e9:e4:f4:45:6a",
+            "length": 72,
+            "name": "vport2",
+            "port_no": 9,
+            "properties": [
+                {
+                    "advertised": 0,
+                    "curr": 2050,
+                    "curr_speed": 10000,
+                    "length": 32,
+                    "max_speed": 0,
+                    "peer": 0,
+                    "supported": 0,
+                    "type": "ETHERNET"
+                }
+            ],
+            "state": 1
+        }
+    ]
+}
+
+''' 
+		An example of msgjson
+		{
+			'OFPPortStatus':
+			{
+				'desc': 
+				{'OFPPort': 
+					{
+						'port_no': 4,
+						'hw_addr': 'ce:59:f0:d5:d3:91',
+						'name': 'vport3', 
+						'config': 1,
+						'state': 1,
+						'curr': 2050, 
+						'advertised': 0, 
+						'supported': 0, 
+						'peer': 0, 
+						'curr_speed': 10000, 
+						'max_speed': 0
+					}
+				}
+			, 
+			'reason': 2
+			}		
+		}
+		'''
+
+	'''	
+	@set_ev_cls(ofp_event.EventOFPPortStateChange, MAIN_DISPATCHER)
+	def _port_state_change_handler(self, ev):
+		datapath = ev.datapath
+		reason = ev.reason
+		port_no = ev.port_no
+		self.logger.info(datetime.datetime.now())
+		self.logger.info('PORT STATE CHANGE in datapath: %s, reason = %s, port number = %s',
+		datapath.id, reason, port_no)
+	'''		

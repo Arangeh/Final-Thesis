@@ -12,16 +12,16 @@
 					{{-- Card Body --}}
 					{{-- content goes here
 					SIUUU	 --}}
-					<h1>Welcome to Admin Panel for the Monitor Project</h1>
+					<h1>Welcome to Admin Panel of the Monitor Project</h1>
 					This is the main page. 
 					<br/>
 					A brief description of each page is provided below:
 					<br/>
 					<hr/>
-					<b>CAPABILITIES:</b>
+					<b>CAPABILITIES:</b> 
 					<br/>
 					<hr/>
-					<b>EVENTS:</b>
+					<b>EVENTS:</b> A log of events that is kept in the project database. For simplicity we have only kept those logs that are concerned to registering/unregistering a new whitebox switch or altering the state of a port from a whitebox switch. Note that the whitebox switch should be connected to the controller. Otherwise no event will be triggered to the controller hence nothing will be tracked. 
 					<br/>
 					<hr/>
 					<b>PORT STATISTICAL INFORMATION:</b> Contains statistical information on a per-port basis.

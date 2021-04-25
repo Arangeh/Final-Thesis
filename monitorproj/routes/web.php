@@ -46,11 +46,11 @@ Route::middleware(['auth:sanctum', 'verified'])->get('/', function () {
 ;
 // */
 
-/*
+///*
 Route::get('/main',function(){
 	return view('main');
 });
-*/
+//*/
 
 // */
 
@@ -80,6 +80,14 @@ Route::get('/portstat/delete-all', [TableController::class, 'deleteAllPortStats'
 Route::post('/flowstats', [TableController::class, 'addFlow'])->name('flow.addFlow');
 Route::get('/flowstats', [TableController::class, 'getAllFlowStats'])->name('flow.getAllFlowStats')->middleware('authadmin');
 Route::get('/flowstat/delete-all', [TableController::class, 'deleteAllFlowStats'])->name('port.deleteall')->middleware('authadmin');
+
+Route::post('/events', [TableController::class, 'addEvent'])->name('event.addEvent');
+Route::get('/events', [TableController::class, 'getAllEvents'])->name('event.getAllEvents');
+Route::get('/event/delete-all', [TableController::class, 'deleteAllEvents'])->name('event.deleteall');
+
+Route::post('/swdesc', [TableController::class, 'addSwitchDescription'])->name('switch.addDescription');
+
+
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
     return view('dashboard');

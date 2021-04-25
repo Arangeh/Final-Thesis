@@ -54,7 +54,7 @@
       <div class="sidebar-wrapper" id="sidebar-wrapper">
         <ul class="nav">
           <li>
-						<a href="./tables.html">
+						<a href="/main">
 							<i class="now-ui-icons shopping_shop"></i>
 							<p>Main Page</p>
 						</a>
@@ -66,7 +66,7 @@
             </a>
           </li>
 					<li>
-            <a href="./notifications.html">
+            <a href="/events">
               <i class="now-ui-icons ui-1_bell-53"></i>
               <p>Events</p>
             </a>
