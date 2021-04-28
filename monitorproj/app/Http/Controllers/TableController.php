@@ -8,6 +8,9 @@ use App\Models\PortStat;
 use App\Models\Event;
 use App\Models\FlowStat;
 use App\Models\SwitchDescription;
+use App\Models\SwitchPortDescription;
+use App\Models\SwitchTable;
+use App\Models\SwitchFeature;
 
 
 class TableController extends Controller
@@ -118,6 +121,55 @@ class TableController extends Controller
 		$sw_desc_record->serial_num = $req->serial_num;
 		$sw_desc_record->dp_desc = $req->dp_desc;
 		$result = $sw_desc_record->save();
+		if ($result) {
+			return ["Result" => "Data has been saved"];
+		}
+		return ["Result" => "Operation failed"];
+	}
+
+	public function addSwitchPortDescription(Request $req)
+	{
+		//$sw_desc_record = new SwitchDescription;
+		$sw_port_desc_record = SwitchPortDescription::firstOrNew(['hw_addr' => ($req->hw_addr)]);
+		$sw_port_desc_record->timestamp = $req->timestamp;
+		$sw_port_desc_record->datapath = $req->datapath;
+		$sw_port_desc_record->name = $req->name;
+		$sw_port_desc_record->config = $req->config;
+		$sw_port_desc_record->state = $req->state;
+		$sw_port_desc_record->curr = $req->curr;
+		$sw_port_desc_record->curr_speed = $req->curr_speed;
+		$sw_port_desc_record->max_speed = $req->max_speed;
+		$sw_port_desc_record->port_no = $req->port_no;
+		$result = $sw_port_desc_record->save();
+		if ($result) {
+			return ["Result" => "Data has been saved"];
+		}
+		return ["Result" => "Operation failed"];
+	}
+	public function addSwitchTable(Request $req)
+	{
+		//$sw_desc_record = new SwitchDescription;
+		$sw_table_record = SwitchTable::firstOrNew(['datapath' => ($req->datapath), 'table_id' => ($req->table_id)]);
+		$sw_table_record->timestamp = $req->timestamp;
+		$sw_table_record->active_count = $req->active_count;
+		$sw_table_record->lookup_count = $req->lookup_count;
+		$sw_table_record->matched_count = $req->matched_count;
+		$result = $sw_table_record->save();
+		if ($result) {
+			return ["Result" => "Data has been saved"];
+		}
+		return ["Result" => "Operation failed"];
+	}
+	public function addSwitchFeature(Request $req)
+	{
+		//$sw_desc_record = new SwitchDescription;
+		$sw_feature = SwitchFeature::firstOrNew(['datapath_id' => ($req->datapath_id)]);
+		$sw_feature->timestamp = $req->timestamp;
+		$sw_feature->auxiliary_id = $req->auxiliary_id;
+		$sw_feature->n_tables = $req->n_tables;
+		$sw_feature->n_buffers = $req->n_buffers;
+		$sw_feature->capabilities = $req->capabilities;
+		$result = $sw_feature->save();
 		if ($result) {
 			return ["Result" => "Data has been saved"];
 		}

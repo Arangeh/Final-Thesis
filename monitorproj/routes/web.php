@@ -87,7 +87,11 @@ Route::get('/event/delete-all', [TableController::class, 'deleteAllEvents'])->na
 
 Route::post('/swdesc', [TableController::class, 'addSwitchDescription'])->name('switch.addDescription');
 
+Route::post('/swportsdesc', [TableController::class, 'addSwitchPortDescription'])->name('switch.addPortDescription');
 
+Route::post('/swtables', [TableController::class, 'addSwitchTable'])->name('switch.addTable');
+
+Route::post('/swfeatures', [TableController::class, 'addSwitchFeature'])->name('switch.addFeature');
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
     return view('dashboard');

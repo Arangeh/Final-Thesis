@@ -49,8 +49,9 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 	url_switch_ports_laravel = 'http://monitorproj.test/swportsdesc'
 	url_switch_tables_base = 'http://localhost:8080/stats/table/'
 	url_switch_tables_laravel = 'http://monitorproj.test/swtables'
-
-
+	#url_switch_flows_base = 'http://localhost:8080/stats/flow/'
+	#url_switch_flows_laravel = 'http://monitorproj.test/swflows'
+	url_switch_features_laravel = 'http://monitorproj.test/swfeatures'
 
 
 	mfr = ''
@@ -64,7 +65,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 		fh.setLevel(logging.DEBUG)
 		self.logger.addHandler(fh)
 		'''
-		#self.monitor_thread = hub.spawn(self._monitor)
+		self.monitor_thread = hub.spawn(self._monitor)
 		self.capabilities_configs_thread = hub.spawn(self._capabilities_configs)
 		#self.capabilities_thread = hub.spawn(self._capabilities)
 		#self.portdesc_thread = hub.spawn(self._portdesc)
@@ -162,6 +163,8 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 		#x = requests.get(self.url_switches)
 
 		dpid_str = str(datapath.id)
+		#Getting switch description
+		'''
 		s = self.url_switch_description_base + dpid_str
 		#self.logger.info(s)
 		x = requests.get(s)
@@ -174,8 +177,45 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 		
 		x = requests.post(self.url_switch_description_laravel, data=sw_description_dict)
 		self.logger.info(x.text)
+		
+		#Getting port information about the switch
+		s = self.url_switch_ports_base + dpid_str
+		x = requests.get(s)
+		self.logger.info('yak yaketun')
+		sw_ports_dict = json.loads(x.text)
 
-		#s = self.url_switch_ports_base
+		for port in sw_ports_dict[dpid_str]:
+			
+			port['datapath'] = dpid_str
+			port['timestamp'] = datetime.now().strftime("%d-%b-%Y, %H:%M:%S")
+			port['config'] = self._resolve_configuration(port['config'])
+			port['state'] = self._resolve_state(port['state'])
+			port = self._stringify_dict_values(port)
+			#print('kk')
+			#print(port)
+			x = requests.post(self.url_switch_ports_laravel, data=port)
+			self.logger.info(x.text)
+		
+		s = self.url_switch_tables_base + dpid_str
+		x = requests.get(s)
+		sw_tables_dict = json.loads(x.text)
+		#print(type(sw_tables_dict[dpid_str]))
+		#sw_tables_dict = sw_tables_dict[dpid_str]
+		for table in list(filter(lambda x: (x['active_count'] != 0), sw_tables_dict[dpid_str])):
+		#for table in sw_tables_dict[dpid_str]:
+			table['datapath'] = dpid_str
+			table['timestamp'] = datetime.now().strftime("%d-%b-%Y, %H:%M:%S")
+			table = self._stringify_dict_values(table)
+			x = requests.post(self.url_switch_tables_laravel, data=table)
+			self.logger.info(x.text)
+			#print(table)
+		'''
+		
+		self._send_features_request(self.datapaths[datapath.id])
+
+		#print("kk")
+
+		
 		
 
 	def _request_desc_stats(self, datapath):
@@ -186,12 +226,29 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 	def _request_stats(self, datapath):
 		# self.logger.debug('send stats request: %016x', datapath.id)
 		ofproto = datapath.ofproto
-		parser = datapath.ofproto_parser		
+		parser = datapath.ofproto_parser
 		req = parser.OFPFlowStatsRequest(datapath)
 		datapath.send_msg(req)
 
 		req = parser.OFPPortStatsRequest(datapath, 0, ofproto.OFPP_ANY)
 		datapath.send_msg(req)
+
+	def _send_features_request(self, datapath):
+		ofp_parser = datapath.ofproto_parser
+		req = ofp_parser.OFPFeaturesRequest(datapath)
+		datapath.send_msg(req)
+	
+	@set_ev_cls(ofp_event.EventOFPSwitchFeatures, MAIN_DISPATCHER)
+	def switch_caps_handler(self, ev):
+		self.logger.info('SIUUUU')
+		msg = ev.msg
+		#self.logger.debug(self._resolve_capabilities(msg.to_jsondict()['OFPSwitchFeatures']['capabilities']))
+		switch_features_dict = msg.to_jsondict()['OFPSwitchFeatures']
+		switch_features_dict['capabilities'] = self._resolve_capabilities(switch_features_dict['capabilities'])
+		switch_features_dict['timestamp'] = datetime.now().strftime("%d-%b-%Y, %H:%M:%S")
+		switch_features_dict = self._stringify_dict_values(switch_features_dict)
+		x = requests.post(self.url_switch_features_laravel, data=switch_features_dict)
+		self.logger.info(x.text)
 		
 	'''
 	@set_ev_cls(ofp_event.EventOFPSwitchFeatures, MAIN_DISPATCHER)
@@ -203,16 +260,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 		# 								'datapath_id=0x%016x n_buffers=%d '
 		# 								'n_tables=%d capabilities=0x%08x ports=%s',
 		# 								msg.datapath_id, msg.n_buffers, msg.n_tables,
-		# 								msg.capabilities, msg.ports)
-	
-	@set_ev_cls(ofp_event.EventOFPDescStatsReply, MAIN_DISPATCHER)
-	def desc_stats_reply_handler(self, ev):
-		body = ev.msg.body
-		self.logger.debug('DescStats: mfr_desc=%s hw_desc=%s sw_desc=%s '
-											'serial_num=%s dp_desc=%s',
-											body.mfr_desc, body.hw_desc, body.sw_desc,
-											body.serial_num, body.dp_desc)
-		self.mfr = body.mfr_desc										
+		# 								msg.capabilities, msg.ports)										
 	'''
 
 	@set_ev_cls(ofp_event.EventOFPFlowStatsReply, MAIN_DISPATCHER)
@@ -223,13 +271,14 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 											 flow.match['eth_dst'])):
 			# Flow Stats in JSON
 			monitor_dict = {
-				"datapath": str(ev.msg.datapath.id),
-				"in_port": str(stat.match['in_port']),  
+				"datapath": ev.msg.datapath.id,
+				"in_port": stat.match['in_port'],  
 				"eth_dst": stat.match['eth_dst'],
-				"out_port": str(stat.instructions[0].actions[0].port),
-				"packets": str(stat.packet_count),
-				"bytes": str(stat.byte_count)
+				"out_port": stat.instructions[0].actions[0].port,
+				"packets": stat.packet_count,
+				"bytes": stat.byte_count
 			}
+			monitor_dict = self._stringify_dict_values(monitor_dict)
 			x = requests.post(self.url_flow, data=monitor_dict)
 			# self.logger.info("REQUEST")
 			# self.logger.info(monitor_dict)
@@ -243,16 +292,19 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 		body = ev.msg.body
 		for stat in sorted(body, key=attrgetter('port_no')):
 			# Port Stats in JSON
+			#'''
 			monitor_dict={"datapath" : str(ev.msg.datapath.id),
-			"port" : str(stat.port_no),
-			"rx_pkts": str(stat.rx_packets),
-			"rx_bytes": str(stat.rx_bytes),
-			"rx_error": str(stat.rx_errors),			
-			"tx_pkts": str(stat.tx_packets), 
-			"tx_bytes": str(stat.tx_bytes),
-			"tx_error": str(stat.tx_errors),
-			"rx_error": str(stat.rx_errors) + '\n YO'
+			"port" : stat.port_no,
+			"rx_pkts": stat.rx_packets,
+			"rx_bytes": stat.rx_bytes,
+			"rx_error": stat.rx_errors,			
+			"tx_pkts": stat.tx_packets, 
+			"tx_bytes": stat.tx_bytes,
+			"tx_error": stat.tx_errors,
+			"rx_error": stat.rx_errors
 			}
+			#'''
+			monitor_dict = self._stringify_dict_values(monitor_dict)
 			x = requests.post(self.url_port, data=monitor_dict)
 			# self.logger.info(x.text)
 			self.logger.info("REQUEST")
@@ -261,13 +313,13 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 		res = ''
 		if s & ofproto_v1_3.OFPPC_PORT_DOWN != 0:
 			res = res + ' Port is administratively down '
-		elif s & ofproto_v1_3.OFPPC_NO_RECV != 0:
+		if s & ofproto_v1_3.OFPPC_NO_RECV != 0:
 			res = res + ' Drop all packets recieved by port '
-		elif s & ofproto_v1_3.OFPPC_NO_FWD != 0:
+		if s & ofproto_v1_3.OFPPC_NO_FWD != 0:
 			res = res + ' Drop packets forwarded to port '
-		elif s & ofproto_v1_3.OFPPC_NO_PACKET_IN != 0:		
+		if s & ofproto_v1_3.OFPPC_NO_PACKET_IN != 0:		
 			res = res + ' Do not send packet-in msgs for port '
-		else:
+		if s & (ofproto_v1_3.OFPPC_PORT_DOWN | ofproto_v1_3.OFPPC_NO_RECV | s & ofproto_v1_3.OFPPC_NO_FWD | ofproto_v1_3.OFPPC_NO_PACKET_IN) == 0:
 			res = ' Port is up and running, with no constraint '
 		return res
 
@@ -295,4 +347,38 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 			res = 'Live for Fast Failover Group'
 		else:
 			res = 'Unknown'
-		return res				 
+		return res
+	def _resolve_capabilities(self, s):
+		'''
+		# enum ofp_capabilities
+		OFPC_FLOW_STATS = 1 << 0    # Flow statistics.
+		OFPC_TABLE_STATS = 1 << 1   # Table statistics.
+		OFPC_PORT_STATS = 1 << 2    # Port statistics.
+		OFPC_GROUP_STATS = 1 << 3   # Group statistics.
+		OFPC_IP_REASM = 1 << 5      # Can reassemble IP fragments.
+		OFPC_QUEUE_STATS = 1 << 6   # Queue statistics.
+		OFPC_PORT_BLOCKED = 1 << 8  # Switch will block looping ports.
+		'''
+		res = ''
+		if s & ofproto_v1_3.OFPC_FLOW_STATS != 0:
+			res = res + ' Flow statistics '
+		if s & ofproto_v1_3.OFPC_TABLE_STATS != 0:
+			res = res + ' Table statistics '
+		if s & ofproto_v1_3.OFPC_PORT_STATS != 0:
+			res = res + ' Port statistics '
+		if s & ofproto_v1_3.OFPC_GROUP_STATS != 0:
+			res = res + ' Group statistics '
+		if s & ofproto_v1_3.OFPC_IP_REASM != 0:
+			res = res + ' Can reassemble IP fragments '
+		if s & ofproto_v1_3.OFPC_QUEUE_STATS != 0:
+			res = res + ' Queue statistics '
+		if s & ofproto_v1_3.OFPC_PORT_BLOCKED != 0:
+			res = res + ' Switch will block looping ports '
+		if s & (ofproto_v1_3.OFPC_FLOW_STATS | ofproto_v1_3.OFPC_TABLE_STATS | ofproto_v1_3.OFPC_PORT_STATS | ofproto_v1_3.OFPC_GROUP_STATS | ofproto_v1_3.OFPC_IP_REASM | ofproto_v1_3.OFPC_QUEUE_STATS | ofproto_v1_3.OFPC_PORT_BLOCKED) == 0:
+			res = ' unknown '
+		return res
+
+	def _stringify_dict_values(self, d):
+		key_values = d.items()
+		new_d = {str(key): str(value) for key, value in key_values}
+		return new_d					 

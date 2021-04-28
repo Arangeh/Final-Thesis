@@ -134,6 +134,11 @@ http://localhost:8080/stats/portdesc/264840332435788
     ]
 }
 
+ofctl rest api port description:
+{'hw_addr': 'f0:de:f1:ef:e1:4c', 'name': 'mybridge', 'config': 0, 'state': 4, 'curr': 0, 'advertised': 0, 'supported': 0, 'peer': 0, 'curr_speed': 0, 'max_speed': 0, 'port_no': 'LOCAL'
+}
+
+
 ''' 
 		An example of msgjson
 		{
