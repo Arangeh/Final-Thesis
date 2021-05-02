@@ -11,6 +11,8 @@ use App\Models\SwitchDescription;
 use App\Models\SwitchPortDescription;
 use App\Models\SwitchTable;
 use App\Models\SwitchFeature;
+use App\Models\SwitchFlow;
+use App\Models\SwitchID;
 
 
 class TableController extends Controller
@@ -170,6 +172,36 @@ class TableController extends Controller
 		$sw_feature->n_buffers = $req->n_buffers;
 		$sw_feature->capabilities = $req->capabilities;
 		$result = $sw_feature->save();
+		if ($result) {
+			return ["Result" => "Data has been saved"];
+		}
+		return ["Result" => "Operation failed"];
+	}
+	public function addSwitchFlow(Request $req)
+	{
+		//$sw_desc_record = new SwitchDescription;
+		$sw_flow = SwitchFlow::firstOrNew(['datapath' => ($req->datapath), 'table_id' => ($req->table_id), 'flow_id' => ($req->flow_id)]);
+		$sw_flow->priority = $req->priority;
+		$sw_flow->cookie = $req->cookie;
+		$sw_flow->hard_timeout = $req->hard_timeout;
+		$sw_flow->duration_sec = $req->duration_sec;
+		$sw_flow->packet_count = $req->packet_count;
+		$sw_flow->actions = $req->actions;
+		$sw_flow->timestamp = $req->timestamp;
+		$sw_flow->in_port = $req->in_port;
+		$sw_flow->dl_dst = $req->dl_dst;
+		$result = $sw_flow->save();
+		if ($result) {
+			return ["Result" => "Data has been saved"];
+		}
+		return ["Result" => "Operation failed"];
+	}
+	public function addSwitchID(Request $req)
+	{
+		//$sw_desc_record = new SwitchDescription;
+		$sw_id = SwitchID::firstOrNew(['datapath' => ($req->datapath)]);
+		$sw_id->timestamp = $req->timestamp;
+		$result = $sw_id->save();
 		if ($result) {
 			return ["Result" => "Data has been saved"];
 		}

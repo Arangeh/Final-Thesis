@@ -53,57 +53,50 @@
       </div>
       <div class="sidebar-wrapper" id="sidebar-wrapper">
         <ul class="nav">
-          <li>
+          <li class="{{ 'main' == request()->path() ? 'active' : '' }} ">
 						<a href="/main">
 							<i class="now-ui-icons shopping_shop"></i>
 							<p>Main Page</p>
 						</a>
 					</li>
-					<li>
-            <a href="/capabilities">
+					<li class="{{ 'capabilities-configurations' == request()->path() ? 'active' : '' }} ">
+            <a href="/capabilities-configurations">
               <i class="now-ui-icons files_paper"></i>
-              <p>Capabilities</p>
+              <p>Capabilities-Configurations</p>
             </a>
           </li>
-					<li>
+					<li class="{{ 'events' == request()->path() ? 'active' : '' }} ">
             <a href="/events">
               <i class="now-ui-icons ui-1_bell-53"></i>
               <p>Events</p>
             </a>
           </li>
-          <li>
+          <li class="{{ 'port-statistics' == request()->path() ? 'active' : '' }} ">
             <a href="/port-statistics">
               <i class="now-ui-icons business_chart-bar-32"></i>
               <p>Port Statistical Information</p>
             </a>
           </li>
-					<li>
+					<li class="{{ 'flow-statistics' == request()->path() ? 'active' : '' }} ">
             <a href="/flow-statistics">
               <i class="now-ui-icons business_chart-bar-32"></i>
               <p>Flow Statistical Information</p>
             </a>
           </li>
-          <li>
-            <a href="./map.html">
-              <i class="now-ui-icons ui-1_settings-gear-63"></i>
-              <p>Configuration</p>
-            </a>
-          </li>
-          
-          <li>
+          <li class="{{ 'portstats' == request()->path() ? 'active' : '' }} ">
             <a href="/portstats">
               <i class="now-ui-icons design_bullet-list-67"></i>
               <p>Port Stats</p>
             </a>
           </li>
-          <li class="active ">
+          <li class="{{ 'flowstats' == request()->path() ? 'active' : '' }} ">
             <a href="/flowstats">
               <i class="now-ui-icons design_bullet-list-67"></i>
               <p>Flow Stats</p>
             </a>
           </li>
-					<li>
-						<a href="./tables.html">
+					<li class="{{ 'connected-devices' == request()->path() ? 'active' : '' }} ">
+						<a href="/connected-devices">
 							<i class="now-ui-icons tech_laptop"></i>
 							<p>Connected Devices</p>
 						</a>

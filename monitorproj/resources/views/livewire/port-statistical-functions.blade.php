@@ -1,20 +1,20 @@
 <div>
-	<form action="" method="POST" enctype="multipart/form-data" form-horizontal>
-		<div class="card-header row">
-			<div class="col-md-6">	
-				<b>Caveat:</b> Each time the page loads, you can only see the statistical information for only one branch of cascading dropdown menus. If you have altered some dropdown menu whereas you want to see statistical information for another branch, then you should click on the "Refresh" button first.  	
-			</div>
-			<div class="col-md-6"><span class="pull-right"><a href="/port-statistics" class="btn btn-danger">Refresh</a></span></div>
-			
+	<div class="card-header row">
+		<div class="col-md-6">	
+			<b>Caveat:</b> Each time the page loads, you can only see the statistical information for only one branch of cascading dropdown menus. If you have altered some dropdown menu whereas you want to see statistical information for another branch, then you should click on the "Refresh" button first.  	
 		</div>
+		<div class="col-md-6"><span class="pull-right"><a href="/port-statistics" class="btn btn-danger">Refresh</a></span></div>
+	</div>
 
-		<div class="col-md-12"><b>Port-Related Info:</b> Select the <i><u>datapath</u></i> and <i><u>port</u></i> to collect statistical information in tabular format.
-							</div>
+		
+	<div class="card-body">
+		<div class="col-md-12">
+			<b>Port-Related Info:</b> Select the <i><u>datapath</u></i> and <i><u>port</u></i> to collect statistical information in tabular format.					
+		</div>
     {{ csrf_field() }}
     {{-- Datapath Selection --}}
-		
-		<div class="card-body">
-      <div class="form-group">
+		<form action="" method="POST" enctype="multipart/form-data" form-horizontal>
+			<div class="form-group">
         <div class="col-sm-10">
           <label for="siu">Select Datapath</label>
           <select class="form-control" wire:model="selectedPortDP">
@@ -171,6 +171,7 @@
 			@else
 				You haven't selected a datapath and port yet. Upon selection, a table will be shown here.
 			@endif	 
-    </div>
-	</form>
+    </form>
+	</div>
+	
 </div>

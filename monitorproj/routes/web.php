@@ -68,9 +68,12 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 	})->name('admin.dashboard');		
 });
 */
-Route::get('/capabilities', function(){
-	return view('capabilities');
-})->name('admin.capabilities')->middleware('authadmin');
+Route::get('/connected-devices', function(){
+	return view('connected-devices');
+})->middleware('authadmin');
+Route::get('/capabilities-configurations', function(){
+	return view('capabilities-configurations');
+})->name('admin.caps-confs')->middleware('authadmin');
 Route::post('/portstats', [TableController::class, 'addPort'])->name('port.addPort');
 Route::get('/portstats', [TableController::class, 'getAllPortStats'])->name('port.getAllPortStats')
 ->middleware('authadmin')
@@ -81,9 +84,11 @@ Route::post('/flowstats', [TableController::class, 'addFlow'])->name('flow.addFl
 Route::get('/flowstats', [TableController::class, 'getAllFlowStats'])->name('flow.getAllFlowStats')->middleware('authadmin');
 Route::get('/flowstat/delete-all', [TableController::class, 'deleteAllFlowStats'])->name('port.deleteall')->middleware('authadmin');
 
+
+
 Route::post('/events', [TableController::class, 'addEvent'])->name('event.addEvent');
-Route::get('/events', [TableController::class, 'getAllEvents'])->name('event.getAllEvents');
-Route::get('/event/delete-all', [TableController::class, 'deleteAllEvents'])->name('event.deleteall');
+Route::get('/events', [TableController::class, 'getAllEvents'])->name('event.getAllEvents')->middleware('authadmin');
+Route::get('/event/delete-all', [TableController::class, 'deleteAllEvents'])->name('event.deleteall')->middleware('authadmin');
 
 Route::post('/swdesc', [TableController::class, 'addSwitchDescription'])->name('switch.addDescription');
 
@@ -92,6 +97,11 @@ Route::post('/swportsdesc', [TableController::class, 'addSwitchPortDescription']
 Route::post('/swtables', [TableController::class, 'addSwitchTable'])->name('switch.addTable');
 
 Route::post('/swfeatures', [TableController::class, 'addSwitchFeature'])->name('switch.addFeature');
+
+Route::post('/swflows', [TableController::class, 'addSwitchFlow'])->name('switch.addFlow');
+
+Route::post('/swids', [TableController::class, 'addSwitchID'])->name('switch.addID');
+
 
 Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
     return view('dashboard');

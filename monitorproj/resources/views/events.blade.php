@@ -20,13 +20,27 @@
 								@foreach($events as $event)
 								<tr>
 									@if($event->type === 'datapath')
-										<td>datapath</td>
-										<td></td>
-										
+									<td>{{ $event->timestamp }}</td>
+									<td>{{ $event->reason }} whitebox switch with datapath id {{ $event->datapath }}</td>
 									@elseif($event->type === 'port')
-										port
-										<td>port</td>
-										<td></td>
+									<td>{{ $event->timestamp }}</td>	
+									
+									<td>{{ $event->reason }} port {{ $event->name }} with the following properties:
+										<ul>
+											<li>
+												<b>HW Address:</b> {{ $event->hw_addr }}
+											</li>
+											<li>
+												<b>Current Speed(kbps):</b> {{ $event->curr_speed }}
+											</li>
+											<li>
+												<b>Configuration:</b> {{ $event->configstat }}
+											</li>
+											<li>
+												<b>State:</b> {{ $event->state }}
+											</li>
+										</ul>
+									</td>
 									@endif
 								</tr>
 								@endforeach

@@ -36,6 +36,8 @@ from logging import Logger
 #import datetime
 from datetime import datetime
 import random
+from ryu.topology import event, switches
+from ryu.topology.api import get_switch, get_link
 
 #'''
 class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
@@ -43,16 +45,17 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 	url_flow = 'http://monitorproj.test/flowstats/'
 	url_events = 'http://monitorproj.test/events/'
 	url_switches = 'http://localhost:8080/stats/switches'
+	url_switches_laravel = 'http://monitorproj.test/swids'
 	url_switch_description_base = 'http://localhost:8080/stats/desc/'
 	url_switch_description_laravel = 'http://monitorproj.test/swdesc'
 	url_switch_ports_base = 'http://localhost:8080/stats/portdesc/'
 	url_switch_ports_laravel = 'http://monitorproj.test/swportsdesc'
 	url_switch_tables_base = 'http://localhost:8080/stats/table/'
 	url_switch_tables_laravel = 'http://monitorproj.test/swtables'
-	#url_switch_flows_base = 'http://localhost:8080/stats/flow/'
-	#url_switch_flows_laravel = 'http://monitorproj.test/swflows'
+	url_switch_flows_base = 'http://localhost:8080/stats/flow/'
+	url_switch_flows_laravel = 'http://monitorproj.test/swflows'
 	url_switch_features_laravel = 'http://monitorproj.test/swfeatures'
-
+	url_switch_neighbors_laravel = 'http://monitorproj.test/neighbors'
 
 	mfr = ''
 	def __init__(self, *args, **kwargs):
@@ -101,9 +104,6 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 		configstat = '<' + self._resolve_configuration(ofpport['config']) + '>'
 		reason = self._resolve_reason(msg.reason)	
 		state = self._resolve_state(ofpport['state'])	
-		
-		#curr_speed = ofpport['curr_speed']
-
 		port_event_dict = {
 			"type": 'port',
 			"hw_addr": str(ofpport['hw_addr']),
@@ -113,17 +113,10 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 			"configstat": str(configstat),
 			"curr_speed": ofpport['curr_speed'],
 			"reason": reason,
-			"timestamp": datetime.now()
+			"timestamp": datetime.now().strftime("%d-%b-%Y, %H:%M:%S")
 		}
-
-		self.logger.info('port_event_dic')
-		self.logger.info(port_event_dict)
-		#x = requests.post(self.url_events, data=port_event_dict)
-		#self.logger.info("POST REQUEST FOR PORT")
-		#self.logger.info(port_event_dict)
+		x = requests.post(self.url_events, data=port_event_dict)
 		#self.logger.info(x.text)
-		#self.logger.info('%s', monitor_dict)
-		#self.logger.info('%s',json.dumps(monitor_dict))
 
 	@set_ev_cls(ofp_event.EventOFPStateChange,
 				[MAIN_DISPATCHER, DEAD_DISPATCHER])
@@ -131,8 +124,6 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 		datapath = ev.datapath
 		if ev.state == MAIN_DISPATCHER:
 			if datapath.id not in self.datapaths:
-				#self.logger.info(datetime.datetime.now())	
-				#self.logger.debug('register datapath: %016x', datapath.id)
 				dp_event_dict = {
 					"type" : 'datapath',  
 					"datapath": str(datapath.id),
@@ -142,8 +133,6 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 				self.datapaths[datapath.id] = datapath
 		elif ev.state == DEAD_DISPATCHER:
 			if datapath.id in self.datapaths:
-				#self.logger.info(datetime.datetime.now())
-				#self.logger.debug('unregister datapath: %016x', datapath.id)
 				dp_event_dict = {
 					"type" : 'datapath',  
 					"datapath": str(datapath.id),
@@ -151,37 +140,33 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 					"timestamp": datetime.now().strftime("%d-%b-%Y, %H:%M:%S")
 				}
 				del self.datapaths[datapath.id]
-		#x = requests.post(self.url_events, data=dp_event_dict)
-		#self.logger.info("POST REQUEST FOR PORT")
-		#self.logger.info(dp_event_dict)
-		#self.logger.info(x.text)	
+		x = requests.post(self.url_events, data=dp_event_dict)
+		self.logger.info(x.text)	
 
 	
 
 	def _request_caps_confs(self, datapath):
 		parser = datapath.ofproto_parser
-		#x = requests.get(self.url_switches)
-
 		dpid_str = str(datapath.id)
 		#Getting switch description
-		'''
-		s = self.url_switch_description_base + dpid_str
-		#self.logger.info(s)
-		x = requests.get(s)
-		self.logger.info('yak yaketun')
-		sw_description_dict = json.loads(x.text)
+		sw_id = {'datapath': dpid_str, 'timestamp': datetime.now().strftime("%d-%b-%Y, %H:%M:%S")}
 		
+		x = requests.post(self.url_switches_laravel, data=sw_id)
+		s = self.url_switch_description_base + dpid_str
+		
+		x = requests.get(s)
+
+		sw_description_dict = json.loads(x.text)
 		sw_description_dict = sw_description_dict[dpid_str]
 		sw_description_dict['datapath'] = dpid_str
 		sw_description_dict['timestamp'] = datetime.now().strftime("%d-%b-%Y, %H:%M:%S")
 		
 		x = requests.post(self.url_switch_description_laravel, data=sw_description_dict)
-		self.logger.info(x.text)
+		#self.logger.info(x.text)
 		
 		#Getting port information about the switch
 		s = self.url_switch_ports_base + dpid_str
 		x = requests.get(s)
-		self.logger.info('yak yaketun')
 		sw_ports_dict = json.loads(x.text)
 
 		for port in sw_ports_dict[dpid_str]:
@@ -191,40 +176,50 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 			port['config'] = self._resolve_configuration(port['config'])
 			port['state'] = self._resolve_state(port['state'])
 			port = self._stringify_dict_values(port)
-			#print('kk')
-			#print(port)
 			x = requests.post(self.url_switch_ports_laravel, data=port)
-			self.logger.info(x.text)
+			#self.logger.info(x.text)
 		
 		s = self.url_switch_tables_base + dpid_str
 		x = requests.get(s)
 		sw_tables_dict = json.loads(x.text)
-		#print(type(sw_tables_dict[dpid_str]))
-		#sw_tables_dict = sw_tables_dict[dpid_str]
 		for table in list(filter(lambda x: (x['active_count'] != 0), sw_tables_dict[dpid_str])):
-		#for table in sw_tables_dict[dpid_str]:
 			table['datapath'] = dpid_str
 			table['timestamp'] = datetime.now().strftime("%d-%b-%Y, %H:%M:%S")
 			table = self._stringify_dict_values(table)
 			x = requests.post(self.url_switch_tables_laravel, data=table)
 			self.logger.info(x.text)
-			#print(table)
-		'''
-		
-		self._send_features_request(self.datapaths[datapath.id])
+		#Getting flow table of the switch
+		s = self.url_switch_flows_base + dpid_str
+		x = requests.get(s)
+		flows = json.loads(x.text)[dpid_str]
+		flow_dict = {}
+		for i in range(len(flows)):
+			flow_dict['datapath'] = dpid_str
+			flow_dict['flow_id'] = i
+			flow_dict['timestamp'] = datetime.now().strftime("%d-%b-%Y, %H:%M:%S")
+			try:
+				flow_dict['in_port'] = flows[i]['match']['in_port']
+			except:
+				flow_dict['in_port'] = 'N/A'
+				pass
+			try:
+				flow_dict['dl_dst'] = flows[i]['match']['dl_dst']
+			except:
+				flow_dict['dl_dst'] = 'N/A'
+				pass	
+			flow_dict['priority'] = flows[i]['priority']
+			flow_dict['cookie'] = flows[i]['cookie']
+			flow_dict['hard_timeout'] = flows[i]['hard_timeout']
+			flow_dict['duration_sec'] = flows[i]['duration_sec']
+			flow_dict['packet_count']	= flows[i]['packet_count']
+			flow_dict['actions'] = flows[i]['actions'][0]
+			flow_dict['table_id'] = flows[i]['table_id']
+			flow_dict = self._stringify_dict_values(flow_dict)
 
-		#print("kk")
-
-		
-		
-
-	def _request_desc_stats(self, datapath):
-		parser = datapath.ofproto_parser
-		req = parser.OFPDescStatsRequest(datapath, 0)
-		datapath.send_msg(req)
+			x = requests.post(self.url_switch_flows_laravel,data=flow_dict)
+			self.logger.info(x.text)
 		
 	def _request_stats(self, datapath):
-		# self.logger.debug('send stats request: %016x', datapath.id)
 		ofproto = datapath.ofproto
 		parser = datapath.ofproto_parser
 		req = parser.OFPFlowStatsRequest(datapath)
@@ -240,28 +235,13 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 	
 	@set_ev_cls(ofp_event.EventOFPSwitchFeatures, MAIN_DISPATCHER)
 	def switch_caps_handler(self, ev):
-		self.logger.info('SIUUUU')
 		msg = ev.msg
-		#self.logger.debug(self._resolve_capabilities(msg.to_jsondict()['OFPSwitchFeatures']['capabilities']))
 		switch_features_dict = msg.to_jsondict()['OFPSwitchFeatures']
 		switch_features_dict['capabilities'] = self._resolve_capabilities(switch_features_dict['capabilities'])
 		switch_features_dict['timestamp'] = datetime.now().strftime("%d-%b-%Y, %H:%M:%S")
 		switch_features_dict = self._stringify_dict_values(switch_features_dict)
 		x = requests.post(self.url_switch_features_laravel, data=switch_features_dict)
-		self.logger.info(x.text)
-		
-	'''
-	@set_ev_cls(ofp_event.EventOFPSwitchFeatures, MAIN_DISPATCHER)
-	def switch_caps_handler(self, ev):
-		self.logger.info('SIUUUU')
-		# msg = ev.msg
-		# self.logger.info(ev.port)
-		# self.logger.debug('OFPSwitchFeatures received: '
-		# 								'datapath_id=0x%016x n_buffers=%d '
-		# 								'n_tables=%d capabilities=0x%08x ports=%s',
-		# 								msg.datapath_id, msg.n_buffers, msg.n_tables,
-		# 								msg.capabilities, msg.ports)										
-	'''
+		#self.logger.info(x.text)
 
 	@set_ev_cls(ofp_event.EventOFPFlowStatsReply, MAIN_DISPATCHER)
 	def _flow_stats_reply_handler(self, ev):
@@ -270,7 +250,7 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 							 key=lambda flow: (flow.match['in_port'],
 											 flow.match['eth_dst'])):
 			# Flow Stats in JSON
-			monitor_dict = {
+			monitor_flow_dict = {
 				"datapath": ev.msg.datapath.id,
 				"in_port": stat.match['in_port'],  
 				"eth_dst": stat.match['eth_dst'],
@@ -278,22 +258,16 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 				"packets": stat.packet_count,
 				"bytes": stat.byte_count
 			}
-			monitor_dict = self._stringify_dict_values(monitor_dict)
-			x = requests.post(self.url_flow, data=monitor_dict)
-			# self.logger.info("REQUEST")
-			# self.logger.info(monitor_dict)
+			monitor_flow_dict = self._stringify_dict_values(monitor_flow_dict)
+			x = requests.post(self.url_flow, data=monitor_flow_dict)
 			# self.logger.info(x.text)
-			self.logger.info('%s', monitor_dict)
-			self.logger.info('%s',json.dumps(monitor_dict))
 	
-											
 	@set_ev_cls(ofp_event.EventOFPPortStatsReply, MAIN_DISPATCHER)
 	def _port_stats_reply_handler(self, ev):
 		body = ev.msg.body
 		for stat in sorted(body, key=attrgetter('port_no')):
 			# Port Stats in JSON
-			#'''
-			monitor_dict={"datapath" : str(ev.msg.datapath.id),
+			monitor_port_dict={"datapath" : ev.msg.datapath.id,
 			"port" : stat.port_no,
 			"rx_pkts": stat.rx_packets,
 			"rx_bytes": stat.rx_bytes,
@@ -303,12 +277,10 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 			"tx_error": stat.tx_errors,
 			"rx_error": stat.rx_errors
 			}
-			#'''
-			monitor_dict = self._stringify_dict_values(monitor_dict)
-			x = requests.post(self.url_port, data=monitor_dict)
+			monitor_port_dict = self._stringify_dict_values(monitor_port_dict)
+			x = requests.post(self.url_port, data=monitor_port_dict)
 			# self.logger.info(x.text)
-			self.logger.info("REQUEST")
-			self.logger.info('%s', monitor_dict)		
+
 	def _resolve_configuration(self, s):
 		res = ''
 		if s & ofproto_v1_3.OFPPC_PORT_DOWN != 0:
@@ -325,13 +297,10 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 
 	def _resolve_reason(self, s):	
 		if s == ofproto_v1_3.OFPPR_ADD:
-			#reason = 'ADD'
 			res = 'Added'
 		elif s == ofproto_v1_3.OFPPR_DELETE:
-			#reason = 'DELETE'
 			res = 'Deleted'
 		elif s == ofproto_v1_3.OFPPR_MODIFY:
-			#reason = 'MODIFY'
 			res = 'Modified some attribute(s) of'
 		else:
 			res = 'Unknown reason for'
@@ -348,17 +317,8 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 		else:
 			res = 'Unknown'
 		return res
+
 	def _resolve_capabilities(self, s):
-		'''
-		# enum ofp_capabilities
-		OFPC_FLOW_STATS = 1 << 0    # Flow statistics.
-		OFPC_TABLE_STATS = 1 << 1   # Table statistics.
-		OFPC_PORT_STATS = 1 << 2    # Port statistics.
-		OFPC_GROUP_STATS = 1 << 3   # Group statistics.
-		OFPC_IP_REASM = 1 << 5      # Can reassemble IP fragments.
-		OFPC_QUEUE_STATS = 1 << 6   # Queue statistics.
-		OFPC_PORT_BLOCKED = 1 << 8  # Switch will block looping ports.
-		'''
 		res = ''
 		if s & ofproto_v1_3.OFPC_FLOW_STATS != 0:
 			res = res + ' Flow statistics '
@@ -377,7 +337,20 @@ class SimpleMonitor13(simple_switch_13.SimpleSwitch13):
 		if s & (ofproto_v1_3.OFPC_FLOW_STATS | ofproto_v1_3.OFPC_TABLE_STATS | ofproto_v1_3.OFPC_PORT_STATS | ofproto_v1_3.OFPC_GROUP_STATS | ofproto_v1_3.OFPC_IP_REASM | ofproto_v1_3.OFPC_QUEUE_STATS | ofproto_v1_3.OFPC_PORT_BLOCKED) == 0:
 			res = ' unknown '
 		return res
-
+	'''	
+	@set_ev_cls(event.EventSwitchEnter)
+	def get_topology_data(self, ev):
+		switch_list =et_ev_cls(event.EventSwitchEnter)
+	def get_topology_data(self, ev):
+		switch_list = get_switch(self.topology_api_app, None)
+		switches=[switch.dp.id for switch in switch_list]
+		links_list = get_link(self.topology_api_app, None)
+		 get_switch(self.topology_api_app, None)
+		switches=[switch.dp.id for switch in switch_list]
+		links_list = get_link(self.topology_api_app, None)
+		links=[(link.src.dpid,link.dst.dpid,{'port':link.src.port_no}) for link in links_list]
+		request.post(self.url_switch_neighbors_laravel)
+	'''
 	def _stringify_dict_values(self, d):
 		key_values = d.items()
 		new_d = {str(key): str(value) for key, value in key_values}

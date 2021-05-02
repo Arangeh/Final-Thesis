@@ -1,5 +1,5 @@
 @extends('layouts.base')
-@section('title','Port Statistics')
+@section('title','Flow Statistics')
 
 @section('content')
 <div class="row">

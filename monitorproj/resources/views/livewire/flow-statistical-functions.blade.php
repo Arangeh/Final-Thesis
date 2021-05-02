@@ -1,29 +1,36 @@
 <div>
-	<form action="" method="POST" enctype="multipart/form-data" form-horizontal>
-		<div class="card-header row">
-			<div class="col-md-6">	
-				<b>Caveat:</b> Each time the page loads, you can only see the statistical information for only one branch of cascading dropdown menus. If you have altered some dropdown menu whereas you want to see statistical information for another branch, then you should click on the "Refresh" button first.  	
-			</div>
-			<div class="col-md-6"><span class="pull-right"><a href="/flow-statistics" class="btn btn-danger">Refresh</a></span></div>
-			
+	{{--<form action="" method="POST" enctype="multipart/form-data" form-horizontal>--}}
+	<div class="card-header row">
+		<div class="col-md-6">	
+			<b>Caveat:</b> Each time the page loads, you can only see the statistical information for only one branch of cascading dropdown menus. If you have altered some dropdown menu whereas you want to see statistical information for another branch, then you should click on the "Refresh" button first.  	
 		</div>
-  <form action="" method="POST" enctype="multipart/form-data" form-horizontal>
-		<div class="col-md-12">		<b>Flow-Related Info:</b> Select a <i><u>datapath</u></i>, <i><u>input port</u></i>, <i><u>output port</u></i> and <i><u>ethernet destination</u></i> to collect statistical information in tabular format.</div>
+		<div class="col-md-6">
+			<span class="pull-right">
+				<a href="/flow-statistics" class="btn btn-danger">Refresh</a>
+			</span>
+		</div>
+		
+	</div>
+  
+	<div class="card-body">
+		<form action="" method="POST" enctype="multipart/form-data" form-horizontal>
+			<div class="col-md-12">		
+				<b>Flow-Related Info:</b> Select a <i><u>datapath</u></i>, <i><u>input port</u></i>, <i><u>output port</u></i> and <i><u>ethernet destination</u></i> to collect statistical information in tabular format.
+			</div>
 	
-    {{ csrf_field() }}
-    {{-- Datapath Selection --}}
-		<div class="card-body">
-      <div class="form-group">
-        <div class="col-sm-10">
-          <label for="flowdatapath">Select Datapath</label>
-          <select class="form-control" wire:model="selectedFlowDP">
-            <option value="">Datapath</option>
-            @foreach ($uniqueDP as $portstat)
-            <option value="{{ $portstat->datapath }}">{{ $portstat->datapath }} </option>
-            @endforeach
-          </select>
-        </div>
-      </div>
+			{{ csrf_field() }}
+			{{-- Datapath Selection --}}
+			<div class="form-group">
+				<div class="col-sm-10">
+					<label for="flowdatapath">Select Datapath</label>
+					<select class="form-control" wire:model="selectedFlowDP">
+						<option value="">Datapath</option>
+						@foreach ($uniqueDP as $portstat)
+						<option value="{{ $portstat->datapath }}">{{ $portstat->datapath }} </option>
+						@endforeach
+					</select>
+				</div>
+			</div>
 			{{-- Input Port Selection --}}
       @if (!is_null($flowsInPort))
       <div class="form-group">
@@ -126,7 +133,6 @@
 			@else
 				You haven't selected a datapath, input port, output port and ethernet destination yet. Upon selection, a table will be shown here.
 			@endif
-			 
-    </div>
-  </form>
+		</form>
+	</div>
 </div>

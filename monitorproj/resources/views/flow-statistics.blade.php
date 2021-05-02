@@ -1,5 +1,5 @@
 @extends('layouts.base')
-@section('title','Statistics')
+@section('title','Flow Statistical Information')
 
 @section('content')
 	<div class="row">
@@ -17,13 +17,13 @@
 									{{-- <h3 class="card-title">YO</h3> --}}
 									{{-- @livewire('port-statistical-functions') --}}
 									{{-- @livewire('flow-statistical-functions') --}}
-									@livewire('flow-statistical-functions')
+									
 								</span>
 							</div>
 						</div>
 
 				<div class="card-body">
-				
+					@livewire('flow-statistical-functions')
 				</div>
 			</div>
 		</div>
